@@ -1,6 +1,9 @@
 module Main (main) where
 
+import System.Environment
 import Lib
 
 main :: IO ()
-main = someFunc
+main = do
+  args <- getArgs
+  dispatcher args
