@@ -22,10 +22,10 @@ showVmList = do
     let vmDir = home </> "Virtual Machines.localized"
     dirs <- listDirectory vmDir
     -- print $ show dirs
-    let dirs' = map ((</>) vmDir) dirs
+    let vmDirs = map ((</>) vmDir) dirs
     -- print $ show dirs'
-    dirs'' <- mapM findVmxFiles dirs'
-    let vmxFiles = concat dirs''
+    files <- mapM findVmxFiles vmDirs
+    let vmxFiles = concat files
     putStr $ unlines vmxFiles
 
 findVmxFiles :: FilePath -> IO [FilePath]
