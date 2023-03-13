@@ -32,4 +32,4 @@ findVmxFiles dir = do
     return $ map ((</>) dir) (filter isVmxFile files)
 
 isVmxFile :: FilePath -> Bool
-isVmxFile path = drop ((length path) -4) path == ".vmx"
+isVmxFile path = takeExtension path == ".vmx"
