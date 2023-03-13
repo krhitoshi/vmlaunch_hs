@@ -6,6 +6,8 @@ import System.Environment
 import System.FilePath
 import System.Exit
 import System.Directory
+import Data.List (find)
+import Data.Maybe
 
 dispatcher :: [String] -> IO ()
 dispatcher ["list"] = showVmList
@@ -21,15 +23,15 @@ showVmList = do
     home <- getEnv "HOME"
     let vmDir = home </> "Virtual Machines.localized"
     dirs <- listDirectory vmDir
-    files <- mapM (\dir -> let path = vmDir </> dir in findVmxFiles path) dirs
-    let vmxFiles = concat files
+    res <- mapM (\dir -> let path = vmDir </> dir in findVmxFile path) dirs
+    let vmxFiles = catMaybes res
     putStr $ unlines $ let numbers = [0..] :: [Int]
         in zipWith (\n path -> show n ++ " - " ++ path) numbers vmxFiles
 
-findVmxFiles :: FilePath -> IO [FilePath]
-findVmxFiles dir = do
+findVmxFile :: FilePath -> IO (Maybe FilePath)
+findVmxFile dir = do
     files <- getDirectoryContents dir
-    return $ map ((</>) dir) (filter isVmxFile files)
+    return $ find isVmxFile files
 
 isVmxFile :: FilePath -> Bool
 isVmxFile path = takeExtension path == ".vmx"
