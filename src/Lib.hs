@@ -20,12 +20,16 @@ dispatcher _ = do
 
 showVmList :: IO ()
 showVmList = do
+    vmxFilePaths <- getVmxFilePaths
+    putStr $ unlines $ let numbers = [0..] :: [Int]
+        in zipWith (\n path -> show n ++ " - " ++ getVmNameFromVmxFilePath path) numbers vmxFilePaths
+
+getVmxFilePaths :: IO [FilePath]
+getVmxFilePaths = do
     vmDirPath <- getVmDirPath
     dirs <- listDirectory vmDirPath
-    res <- mapM (\dir -> let path = vmDirPath </> dir in findVmxFile path) dirs
-    let vmxFiles = catMaybes res
-    putStr $ unlines $ let numbers = [0..] :: [Int]
-        in zipWith (\n path -> show n ++ " - " ++ getVmNameFromVmxFilePath path) numbers vmxFiles
+    paths <- mapM (\dir -> let path = vmDirPath </> dir in findVmxFile path) dirs
+    return $ catMaybes paths
 
 getVmDirPath :: IO FilePath
 getVmDirPath = do
