@@ -20,13 +20,17 @@ dispatcher _ = do
 
 showVmList :: IO ()
 showVmList = do
-    home <- getEnv "HOME"
-    let vmDir = home </> "Virtual Machines.localized"
-    dirs <- listDirectory vmDir
-    res <- mapM (\dir -> let path = vmDir </> dir in findVmxFile path) dirs
+    vmDirPath <- getVmDirPath
+    dirs <- listDirectory vmDirPath
+    res <- mapM (\dir -> let path = vmDirPath </> dir in findVmxFile path) dirs
     let vmxFiles = catMaybes res
     putStr $ unlines $ let numbers = [0..] :: [Int]
         in zipWith (\n path -> show n ++ " - " ++ getVmNameFromVmxFilePath path) numbers vmxFiles
+
+getVmDirPath :: IO FilePath
+getVmDirPath = do
+    home <- getEnv "HOME"
+    return $ home </> "Virtual Machines.localized"
 
 getVmNameFromVmxFilePath :: FilePath -> String
 getVmNameFromVmxFilePath = dropExtension . takeFileName
