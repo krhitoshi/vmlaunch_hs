@@ -4,10 +4,10 @@ module Lib
 
 import System.Environment
 import System.FilePath
+import System.FilePath.Glob
 import System.Exit
-import System.Directory
-import Data.List (find)
-import Data.Maybe
+-- import System.Directory
+-- import Data.List (find)
 import System.Process
 
 dispatcher :: [String] -> IO ()
@@ -42,9 +42,8 @@ startVm _ = do
 getVmxFilePaths :: IO [FilePath]
 getVmxFilePaths = do
     vmDirPath <- getVmDirPath
-    dirs <- listDirectory vmDirPath
-    paths <- mapM (\dir -> let path = vmDirPath </> dir in findVmxFile path) dirs
-    return $ catMaybes paths
+    paths <- globDir1 (compile "*/*.vmx") vmDirPath
+    return paths
 
 getVmDirPath :: IO FilePath
 getVmDirPath = do
@@ -53,13 +52,3 @@ getVmDirPath = do
 
 getVmNameFromVmxFilePath :: FilePath -> String
 getVmNameFromVmxFilePath = dropExtension . takeFileName
-
-findVmxFile :: FilePath -> IO (Maybe FilePath)
-findVmxFile dir = do
-    files <- getDirectoryContents dir
-    case find isVmxFile files of
-        Nothing -> return Nothing
-        Just file -> return $ let path = dir </> file in Just path
-
-isVmxFile :: FilePath -> Bool
-isVmxFile path = takeExtension path == ".vmx"
