@@ -31,7 +31,9 @@ showVmList = do
 findVmxFile :: FilePath -> IO (Maybe FilePath)
 findVmxFile dir = do
     files <- getDirectoryContents dir
-    return $ find isVmxFile files
+    case find isVmxFile files of
+        Nothing -> return Nothing
+        Just file -> return $ let path = dir </> file in Just path
 
 isVmxFile :: FilePath -> Bool
 isVmxFile path = takeExtension path == ".vmx"
