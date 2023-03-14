@@ -26,7 +26,10 @@ showVmList = do
     res <- mapM (\dir -> let path = vmDir </> dir in findVmxFile path) dirs
     let vmxFiles = catMaybes res
     putStr $ unlines $ let numbers = [0..] :: [Int]
-        in zipWith (\n path -> show n ++ " - " ++ path) numbers vmxFiles
+        in zipWith (\n path -> show n ++ " - " ++ getVmNameFromVmxFilePath path) numbers vmxFiles
+
+getVmNameFromVmxFilePath :: FilePath -> String
+getVmNameFromVmxFilePath = dropExtension . takeFileName
 
 findVmxFile :: FilePath -> IO (Maybe FilePath)
 findVmxFile dir = do
