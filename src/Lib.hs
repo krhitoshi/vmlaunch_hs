@@ -9,10 +9,12 @@ import System.Exit
 -- import System.Directory
 -- import Data.List (find)
 import System.Process
+import qualified Data.Text as T
 
 dispatcher :: [String] -> IO ()
 dispatcher ["list"] = showVmList
 dispatcher ("start":args) = startVm args
+dispatcher ("ssh":args) = sshVm args
 dispatcher (cmd:_) = do
     putStrLn $ "unknown command: " ++ cmd
     exitWith (ExitFailure 1)
@@ -36,6 +38,21 @@ startVm [numberString] = do
     _ <- system command
     return ()
 startVm _ = do
+    putStrLn "specify vm number"
+    exitWith (ExitFailure 1)
+
+sshVm :: [String] -> IO ()
+sshVm [numberString] = do
+    let number = read numberString :: Int
+    vmxFilePaths <- getVmxFilePaths
+    let vmxFilePath = vmxFilePaths !! number
+    result <- readProcess "vmrun" ["getGuestIPAddress", vmxFilePath, "-wait"] []
+    let address = (T.unpack . T.stripEnd . T.pack) result
+    let command = "ssh " ++ address ++ ""
+    putStrLn command
+    _ <- system command
+    return ()
+sshVm _ = do
     putStrLn "specify vm number"
     exitWith (ExitFailure 1)
 
