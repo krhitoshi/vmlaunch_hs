@@ -32,12 +32,7 @@ showVmList = do
 startVm :: [String] -> IO ()
 startVm [numberString] = do
     vmxFilePath <- getVmxFilePath numberString
-    (_, Just hout, Just herr, _) <- createProcess (proc "vmrun" ["start", vmxFilePath, "gui"]){ std_out = CreatePipe, std_err = CreatePipe }
-    out <- hGetContents hout
-    err <- hGetContents herr
-    putStrLn out
-    putStrLn err
-    return ()
+    execVmrun ["start", vmxFilePath, "gui"]
 startVm _ = do
     putStrLn "specify vm number"
     exitWith (ExitFailure 1)
@@ -45,10 +40,7 @@ startVm _ = do
 suspendVm :: [String] -> IO ()
 suspendVm [numberString] = do
     vmxFilePath <- getVmxFilePath numberString
-    let command = "vmrun suspend '" ++ vmxFilePath ++ "'"
-    putStrLn command
-    _ <- system command
-    return ()
+    execVmrun ["suspend", vmxFilePath]
 suspendVm _ = do
     putStrLn "specify vm number"
     exitWith (ExitFailure 1)
@@ -87,3 +79,12 @@ getVmDirPath = do
 
 getVmNameFromVmxFilePath :: FilePath -> String
 getVmNameFromVmxFilePath = dropExtension . takeFileName
+
+execVmrun :: [String] -> IO ()
+execVmrun args = do
+    (_, Just hout, Just herr, _) <- createProcess (proc "vmrun" args){ std_out = CreatePipe, std_err = CreatePipe }
+    out <- hGetContents hout
+    err <- hGetContents herr
+    putStrLn out
+    putStrLn err
+    return ()
