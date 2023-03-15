@@ -13,6 +13,7 @@ import System.Process
 dispatcher :: [String] -> IO ()
 dispatcher ["list"] = showVmList
 dispatcher ("start":args) = startVm args
+dispatcher ("suspend":args) = suspendVm args
 dispatcher ("ssh":args) = sshVm args
 dispatcher (cmd:_) = do
     putStrLn $ "unknown command: " ++ cmd
@@ -35,6 +36,17 @@ startVm [numberString] = do
     _ <- system command
     return ()
 startVm _ = do
+    putStrLn "specify vm number"
+    exitWith (ExitFailure 1)
+
+suspendVm :: [String] -> IO ()
+suspendVm [numberString] = do
+    vmxFilePath <- getVmxFilePath numberString
+    let command = "vmrun suspend '" ++ vmxFilePath ++ "'"
+    putStrLn command
+    _ <- system command
+    return ()
+suspendVm _ = do
     putStrLn "specify vm number"
     exitWith (ExitFailure 1)
 
