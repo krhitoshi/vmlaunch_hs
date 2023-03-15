@@ -29,9 +29,7 @@ showVmList = do
 
 startVm :: [String] -> IO ()
 startVm [numberString] = do
-    let number = read numberString :: Int
-    vmxFilePaths <- getVmxFilePaths
-    let vmxFilePath = vmxFilePaths !! number
+    vmxFilePath <- getVmxFilePath numberString
     let command = "vmrun start '" ++ vmxFilePath ++ "' gui"
     putStrLn command
     _ <- system command
@@ -42,9 +40,7 @@ startVm _ = do
 
 sshVm :: [String] -> IO ()
 sshVm [numberString] = do
-    let number = read numberString :: Int
-    vmxFilePaths <- getVmxFilePaths
-    let vmxFilePath = vmxFilePaths !! number
+    vmxFilePath <- getVmxFilePath numberString
     result <- readProcess "vmrun" ["getGuestIPAddress", vmxFilePath, "-wait"] []
     -- Remove a new line character at the end
     let address = init result
@@ -55,6 +51,13 @@ sshVm [numberString] = do
 sshVm _ = do
     putStrLn "specify vm number"
     exitWith (ExitFailure 1)
+
+getVmxFilePath :: String -> IO FilePath
+getVmxFilePath numberString = do
+    let number = read numberString :: Int
+    vmxFilePaths <- getVmxFilePaths
+    let vmxFilePath = vmxFilePaths !! number
+    return vmxFilePath
 
 getVmxFilePaths :: IO [FilePath]
 getVmxFilePaths = do
