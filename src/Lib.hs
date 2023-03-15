@@ -2,6 +2,7 @@ module Lib
     ( dispatcher
     ) where
 
+import System.IO
 import System.Environment
 import System.FilePath
 import System.FilePath.Glob
@@ -31,9 +32,11 @@ showVmList = do
 startVm :: [String] -> IO ()
 startVm [numberString] = do
     vmxFilePath <- getVmxFilePath numberString
-    let command = "vmrun start '" ++ vmxFilePath ++ "' gui"
-    putStrLn command
-    _ <- system command
+    (_, Just hout, Just herr, _) <- createProcess (proc "vmrun" ["start", vmxFilePath, "gui"]){ std_out = CreatePipe, std_err = CreatePipe }
+    out <- hGetContents hout
+    err <- hGetContents herr
+    putStrLn out
+    putStrLn err
     return ()
 startVm _ = do
     putStrLn "specify vm number"
