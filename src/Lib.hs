@@ -9,7 +9,6 @@ import System.Exit
 -- import System.Directory
 -- import Data.List (find)
 import System.Process
-import qualified Data.Text as T
 
 dispatcher :: [String] -> IO ()
 dispatcher ["list"] = showVmList
@@ -47,7 +46,8 @@ sshVm [numberString] = do
     vmxFilePaths <- getVmxFilePaths
     let vmxFilePath = vmxFilePaths !! number
     result <- readProcess "vmrun" ["getGuestIPAddress", vmxFilePath, "-wait"] []
-    let address = (T.unpack . T.stripEnd . T.pack) result
+    -- Remove a new line character at the end
+    let address = init result
     let command = "ssh " ++ address ++ ""
     putStrLn command
     _ <- system command
