@@ -37,25 +37,19 @@ startVm :: [String] -> IO ()
 startVm [numberString] = do
     vmxFilePath <- getVmxFilePath numberString
     execVmrun ["start", vmxFilePath, "gui"]
-startVm _ = do
-    putStrLn "specify vm number"
-    exitWith (ExitFailure 1)
+startVm _ = noVmNumberError
 
 suspendVm :: [String] -> IO ()
 suspendVm [numberString] = do
     vmxFilePath <- getVmxFilePath numberString
     execVmrun ["suspend", vmxFilePath]
-suspendVm _ = do
-    putStrLn "specify vm number"
-    exitWith (ExitFailure 1)
+suspendVm _ = noVmNumberError
 
 snapshotVm :: [String] -> IO ()
 snapshotVm [numberString] = do
     vmxFilePath <- getVmxFilePath numberString
     execVmrun ["snapshot", vmxFilePath, "vmlaunch-snapshot"]
-snapshotVm _ = do
-    putStrLn "specify vm number"
-    exitWith (ExitFailure 1)
+snapshotVm _ = noVmNumberError
 
 sshVm :: [String] -> IO ()
 sshVm [numberString] = do
@@ -67,9 +61,7 @@ sshVm [numberString] = do
     putStrLn command
     _ <- system command
     return ()
-sshVm _ = do
-    putStrLn "specify vm number"
-    exitWith (ExitFailure 1)
+sshVm _ = noVmNumberError
 
 getVmxFilePath :: String -> IO FilePath
 getVmxFilePath numberString = do
@@ -100,3 +92,8 @@ execVmrun args = do
     putStrLn out
     putStrLn err
     return ()
+
+noVmNumberError :: IO ()
+noVmNumberError = do
+    putStrLn "specify vm number"
+    exitWith (ExitFailure 1)
