@@ -16,6 +16,9 @@ dispatcher ["list"] = showVmList
 dispatcher ("start":args) = startVm args
 dispatcher ("suspend":args) = suspendVm args
 dispatcher ("ssh":args) = sshVm args
+dispatcher ("startssh":args) = do
+    startVm args
+    sshVm args
 dispatcher (cmd:_) = do
     putStrLn $ "unknown command: " ++ cmd
     exitWith (ExitFailure 1)
