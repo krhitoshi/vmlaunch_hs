@@ -17,6 +17,7 @@ dispatcher ("start":args) = startVm args
 dispatcher ("suspend":args) = suspendVm args
 dispatcher ("snapshot":args) = snapshotVm args
 dispatcher ("revert":args) = revertVm args
+dispatcher ("deleteSnapshot":args) = deleteSnapshotVm args
 dispatcher ("ssh":args) = sshVm args
 dispatcher ("startssh":args) = do
     startVm args
@@ -58,6 +59,10 @@ snapshotVm _ = noVmNumberError
 revertVm :: [String] -> IO ()
 revertVm [numberString] = snapshotVmBase numberString "revertToSnapshot"
 revertVm _ = noVmNumberError
+
+deleteSnapshotVm :: [String] -> IO ()
+deleteSnapshotVm [numberString] = snapshotVmBase numberString "deleteSnapshot"
+deleteSnapshotVm _ = noVmNumberError
 
 sshVm :: [String] -> IO ()
 sshVm [numberString] = do
