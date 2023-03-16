@@ -46,16 +46,17 @@ suspendVm [numberString] = do
     execVmrun ["suspend", vmxFilePath]
 suspendVm _ = noVmNumberError
 
-snapshotVm :: [String] -> IO ()
-snapshotVm [numberString] = do
+snapshotVmBase :: String -> String -> IO ()
+snapshotVmBase numberString operation = do
     vmxFilePath <- getVmxFilePath numberString
-    execVmrun ["snapshot", vmxFilePath, "vmlaunch-snapshot"]
+    execVmrun [operation, vmxFilePath, "vmlaunch-snapshot"]
+
+snapshotVm :: [String] -> IO ()
+snapshotVm [numberString] = snapshotVmBase numberString "snapshot"
 snapshotVm _ = noVmNumberError
 
 revertVm :: [String] -> IO ()
-revertVm [numberString] = do
-    vmxFilePath <- getVmxFilePath numberString
-    execVmrun ["revertToSnapshot", vmxFilePath, "vmlaunch-snapshot"]
+revertVm [numberString] = snapshotVmBase numberString "revertToSnapshot"
 revertVm _ = noVmNumberError
 
 sshVm :: [String] -> IO ()
