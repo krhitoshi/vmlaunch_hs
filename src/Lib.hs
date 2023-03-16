@@ -15,6 +15,7 @@ dispatcher :: [String] -> IO ()
 dispatcher ["list"] = showVmList
 dispatcher ("start":args) = startVm args
 dispatcher ("suspend":args) = suspendVm args
+dispatcher ("snapshot":args) = snapshotVm args
 dispatcher ("ssh":args) = sshVm args
 dispatcher ("startssh":args) = do
     startVm args
@@ -45,6 +46,14 @@ suspendVm [numberString] = do
     vmxFilePath <- getVmxFilePath numberString
     execVmrun ["suspend", vmxFilePath]
 suspendVm _ = do
+    putStrLn "specify vm number"
+    exitWith (ExitFailure 1)
+
+snapshotVm :: [String] -> IO ()
+snapshotVm [numberString] = do
+    vmxFilePath <- getVmxFilePath numberString
+    execVmrun ["snapshot", vmxFilePath, "vmlaunch-snapshot"]
+snapshotVm _ = do
     putStrLn "specify vm number"
     exitWith (ExitFailure 1)
 
