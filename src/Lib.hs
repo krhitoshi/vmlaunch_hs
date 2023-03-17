@@ -8,8 +8,11 @@ import System.FilePath
 import System.FilePath.Glob
 import System.Exit
 -- import System.Directory
--- import Data.List (find)
+import Data.List (intercalate)
 import System.Process
+
+subcommands :: [String]
+subcommands = ["list", "runningList", "start", "suspend", "snapshot", "snapshotList", "revert", "deleteSnapshot", "ssh", "startssh"]
 
 dispatcher :: [String] -> IO ()
 dispatcher ["list"] = showVmList
@@ -29,6 +32,7 @@ dispatcher (cmd:_) = do
     exitWith (ExitFailure 1)
 dispatcher _ = do
     putStrLn "specify arguments"
+    putStrLn $ "subcommands: " ++ intercalate ", " subcommands
     exitWith (ExitFailure 1)
 
 showVmList :: IO ()
