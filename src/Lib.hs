@@ -13,6 +13,7 @@ import System.Process
 
 dispatcher :: [String] -> IO ()
 dispatcher ["list"] = showVmList
+dispatcher ["runningList"] = showRunningVmList
 dispatcher ("start":args) = startVm args
 dispatcher ("suspend":args) = suspendVm args
 dispatcher ("snapshot":args) = snapshotVm args
@@ -34,6 +35,10 @@ showVmList = do
     vmxFilePaths <- getVmxFilePaths
     putStr $ unlines $ let numbers = [0..] :: [Int]
         in zipWith (\n path -> show n ++ " - " ++ getVmNameFromVmxFilePath path) numbers vmxFilePaths
+
+showRunningVmList :: IO ()
+showRunningVmList = do
+    execVmrun ["list"]
 
 startVm :: [String] -> IO ()
 startVm [numberString] = do
