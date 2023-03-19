@@ -104,9 +104,7 @@ getVmxFilePaths = do
     return paths
 
 getVmDirPath :: IO FilePath
-getVmDirPath = do
-    home <- getEnv "HOME"
-    return $ home </> "Virtual Machines.localized"
+getVmDirPath = fmap (</> "Virtual Machines.localized") $ getEnv "HOME"
 
 getVmNameFromVmxFilePath :: FilePath -> String
 getVmNameFromVmxFilePath = dropExtension . takeFileName
