@@ -93,15 +93,12 @@ sshVm _ = noVmNumberError
 getVmxFilePath :: String -> IO FilePath
 getVmxFilePath numberString = do
     let number = read numberString :: Int
-    vmxFilePaths <- getVmxFilePaths
-    let vmxFilePath = vmxFilePaths !! number
-    return vmxFilePath
+    fmap (!! number) getVmxFilePaths
 
 getVmxFilePaths :: IO [FilePath]
 getVmxFilePaths = do
     vmDirPath <- getVmDirPath
-    paths <- globDir1 (compile "*/*.vmx") vmDirPath
-    return paths
+    globDir1 (compile "*/*.vmx") vmDirPath
 
 getVmDirPath :: IO FilePath
 getVmDirPath = fmap (</> "Virtual Machines.localized") $ getEnv "HOME"
