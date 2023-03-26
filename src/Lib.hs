@@ -97,8 +97,7 @@ getVmxFilePath numberString = do
 
 getVmxFilePaths :: IO [FilePath]
 getVmxFilePaths = do
-    vmDirPath <- getVmDirPath
-    globDir1 (compile "*/*.vmx") vmDirPath
+    getVmDirPath >>= globDir1 (compile "*/*.vmx")
 
 getVmDirPath :: IO FilePath
 getVmDirPath = fmap (</> "Virtual Machines.localized") $ getEnv "HOME"
