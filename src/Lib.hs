@@ -35,11 +35,14 @@ dispatcher _ = do
     putStrLn $ "subcommands: " ++ intercalate ", " subcommands
     exitWith (ExitFailure 1)
 
+data VM = VM { vmId :: Int, vmName :: String,  vmxPath :: FilePath} deriving (Show)
+
 showVmList :: IO ()
 showVmList = do
     vmxFilePaths <- getVmxFilePaths
-    putStr $ unlines $ let numbers = [0..] :: [Int]
-        in zipWith (\n path -> show n ++ " - " ++ getVmNameFromVmxFilePath path) numbers vmxFilePaths
+    let numbers = [0..] :: [Int]
+        vms = zipWith (\n path -> VM { vmId = n, vmName = getVmNameFromVmxFilePath path, vmxPath = path }) numbers vmxFilePaths
+    putStr $ unlines $ map (\vm -> show (vmId vm) ++ " - " ++ vmName vm) vms
 
 showRunningVmList :: IO ()
 showRunningVmList = do
