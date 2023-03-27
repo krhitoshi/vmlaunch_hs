@@ -40,9 +40,12 @@ data VM = VM { vmId :: Int, vmName :: String,  vmxPath :: FilePath} deriving (Sh
 showVmList :: IO ()
 showVmList = do
     vmxFilePaths <- getVmxFilePaths
-    let numbers = [0..] :: [Int]
-        vms = zipWith (\n path -> VM { vmId = n, vmName = getVmNameFromVmxFilePath path, vmxPath = path }) numbers vmxFilePaths
+    let vms = getVms vmxFilePaths
     putStr $ unlines $ map (\vm -> show (vmId vm) ++ " - " ++ vmName vm) vms
+
+getVms :: [FilePath] -> [VM]
+getVms vmxFilePaths = let numbers = [0..] :: [Int]
+                      in zipWith (\n path -> VM { vmId = n, vmName = getVmNameFromVmxFilePath path, vmxPath = path }) numbers vmxFilePaths
 
 showRunningVmList :: IO ()
 showRunningVmList = do
