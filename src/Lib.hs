@@ -39,8 +39,7 @@ data VM = VM { vmId :: Int, vmName :: String,  vmxPath :: FilePath} deriving (Sh
 
 showVmList :: IO ()
 showVmList = do
-    vmxFilePaths <- getVmxFilePaths
-    let vms = getVms vmxFilePaths
+    vms <- getVmxFilePaths >>= (return . getVms)
     putStr $ unlines $ map (\vm -> show (vmId vm) ++ " - " ++ vmName vm) vms
 
 getVms :: [FilePath] -> [VM]
