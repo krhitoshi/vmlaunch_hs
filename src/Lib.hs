@@ -128,7 +128,12 @@ execVmrun args = do
     return ()
 
 cmdLineStr :: String -> [String] -> String
-cmdLineStr cmd args = cmd ++ " " ++ unwords args
+cmdLineStr cmd args = cmd ++ " " ++ (unwords . map quoteArg) args
+
+quoteArg :: String -> String
+quoteArg arg = if ' ' `elem` arg
+               then ['"'] ++ arg ++ ['"']
+               else arg
 
 noVmNumberError :: IO ()
 noVmNumberError = do
