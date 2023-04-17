@@ -12,13 +12,14 @@ import Data.List (intercalate)
 import System.Process
 
 subcommands :: [String]
-subcommands = ["list", "running", "up", "suspend", "snapshot", "snapshotList", "revert", "deleteSnapshot", "ssh", "upssh"]
+subcommands = ["list", "running", "up", "suspend", "halt", "snapshot", "snapshotList", "revert", "deleteSnapshot", "ssh", "upssh"]
 
 dispatcher :: [String] -> IO ()
 dispatcher ["list"] = showVmList
 dispatcher ["running"] = showRunningVmList
 dispatcher ("up":args) = startVm args
 dispatcher ("suspend":args) = suspendVm args
+dispatcher ("halt":args) = stopSoftVm args
 dispatcher ("snapshot":args) = snapshotVm args
 dispatcher ("snapshotList":args) = snapshotListVm args
 dispatcher ("revert":args) = revertVm args
@@ -61,6 +62,12 @@ suspendVm [numberString] = do
     vmxFilePath <- getVmxFilePath numberString
     execVmrun ["suspend", vmxFilePath]
 suspendVm _ = noVmNumberError
+
+stopSoftVm :: [String] -> IO ()
+stopSoftVm [numberString] = do
+    vmxFilePath <- getVmxFilePath numberString
+    execVmrun ["stop", vmxFilePath, "soft"]
+stopSoftVm _ = noVmNumberError
 
 snapshotVmBase :: String -> String -> IO ()
 snapshotVmBase numberString operation = do
