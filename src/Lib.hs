@@ -4,7 +4,7 @@ module Lib
 
 import System.IO
 import System.Environment
-import System.FilePath
+import System.FilePath ( (</>), dropExtension, takeFileName )
 import System.FilePath.Glob
 import System.Exit
 -- import System.Directory
