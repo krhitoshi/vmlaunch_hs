@@ -119,12 +119,16 @@ getVmNameFromVmxFilePath = dropExtension . takeFileName
 
 execVmrun :: [String] -> IO ()
 execVmrun args = do
+    putStrLn $ cmdLineStr "vmrun" args
     (_, Just hout, Just herr, _) <- createProcess (proc "vmrun" args){ std_out = CreatePipe, std_err = CreatePipe }
     out <- hGetContents hout
     err <- hGetContents herr
     putStrLn out
     putStrLn err
     return ()
+
+cmdLineStr :: String -> [String] -> String
+cmdLineStr cmd args = cmd ++ " " ++ unwords args
 
 noVmNumberError :: IO ()
 noVmNumberError = do
