@@ -12,7 +12,7 @@ import Data.List (intercalate)
 import System.Process
 
 subcommands :: [String]
-subcommands = ["list", "running", "up", "suspend", "snapshot", "snapshotList", "revert", "deleteSnapshot", "ssh", "startssh"]
+subcommands = ["list", "running", "up", "suspend", "snapshot", "snapshotList", "revert", "deleteSnapshot", "ssh", "upssh"]
 
 dispatcher :: [String] -> IO ()
 dispatcher ["list"] = showVmList
@@ -24,7 +24,7 @@ dispatcher ("snapshotList":args) = snapshotListVm args
 dispatcher ("revert":args) = revertVm args
 dispatcher ("deleteSnapshot":args) = deleteSnapshotVm args
 dispatcher ("ssh":args) = sshVm args
-dispatcher ("startssh":args) = do
+dispatcher ("upssh":args) = do
     startVm args
     sshVm args
 dispatcher (cmd:_) = do
