@@ -4,7 +4,7 @@ module Lib
 
 import System.IO
 import System.Environment
-import System.FilePath
+import System.FilePath ( (</>), dropExtension, takeFileName )
 import System.FilePath.Glob
 import System.Exit
 -- import System.Directory
@@ -12,19 +12,20 @@ import Data.List (intercalate)
 import System.Process
 
 subcommands :: [String]
-subcommands = ["list", "running", "start", "suspend", "snapshot", "snapshotList", "revert", "deleteSnapshot", "ssh", "startssh"]
+subcommands = ["list", "running", "up", "suspend", "halt", "snapshot", "snapshotList", "revert", "deleteSnapshot", "ssh", "upssh"]
 
 dispatcher :: [String] -> IO ()
 dispatcher ["list"] = showVmList
 dispatcher ["running"] = showRunningVmList
-dispatcher ("start":args) = startVm args
+dispatcher ("up":args) = startVm args
 dispatcher ("suspend":args) = suspendVm args
+dispatcher ("halt":args) = stopSoftVm args
 dispatcher ("snapshot":args) = snapshotVm args
 dispatcher ("snapshotList":args) = snapshotListVm args
 dispatcher ("revert":args) = revertVm args
 dispatcher ("deleteSnapshot":args) = deleteSnapshotVm args
 dispatcher ("ssh":args) = sshVm args
-dispatcher ("startssh":args) = do
+dispatcher ("upssh":args) = do
     startVm args
     sshVm args
 dispatcher (cmd:_) = do
@@ -35,11 +36,16 @@ dispatcher _ = do
     putStrLn $ "subcommands: " ++ intercalate ", " subcommands
     exitWith (ExitFailure 1)
 
+data VM = VM { vmId :: Int, vmName :: String,  vmxPath :: FilePath} deriving (Show)
+
 showVmList :: IO ()
 showVmList = do
-    vmxFilePaths <- getVmxFilePaths
-    putStr $ unlines $ let numbers = [0..] :: [Int]
-        in zipWith (\n path -> show n ++ " - " ++ getVmNameFromVmxFilePath path) numbers vmxFilePaths
+    vms <- getVmxFilePaths >>= (return . getVms)
+    putStr $ unlines $ map (\vm -> show (vmId vm) ++ " - " ++ vmName vm) vms
+
+getVms :: [FilePath] -> [VM]
+getVms vmxFilePaths = let numbers = [0..] :: [Int]
+                      in zipWith (\n path -> VM { vmId = n, vmName = getVmNameFromVmxFilePath path, vmxPath = path }) numbers vmxFilePaths
 
 showRunningVmList :: IO ()
 showRunningVmList = do
@@ -56,6 +62,12 @@ suspendVm [numberString] = do
     vmxFilePath <- getVmxFilePath numberString
     execVmrun ["suspend", vmxFilePath]
 suspendVm _ = noVmNumberError
+
+stopSoftVm :: [String] -> IO ()
+stopSoftVm [numberString] = do
+    vmxFilePath <- getVmxFilePath numberString
+    execVmrun ["stop", vmxFilePath, "soft"]
+stopSoftVm _ = noVmNumberError
 
 snapshotVmBase :: String -> String -> IO ()
 snapshotVmBase numberString operation = do
@@ -107,12 +119,21 @@ getVmNameFromVmxFilePath = dropExtension . takeFileName
 
 execVmrun :: [String] -> IO ()
 execVmrun args = do
+    putStrLn $ cmdLineStr "vmrun" args
     (_, Just hout, Just herr, _) <- createProcess (proc "vmrun" args){ std_out = CreatePipe, std_err = CreatePipe }
     out <- hGetContents hout
     err <- hGetContents herr
     putStrLn out
     putStrLn err
     return ()
+
+cmdLineStr :: String -> [String] -> String
+cmdLineStr cmd args = cmd ++ " " ++ (unwords . map quoteArg) args
+
+quoteArg :: String -> String
+quoteArg arg = if ' ' `elem` arg
+               then ['"'] ++ arg ++ ['"']
+               else arg
 
 noVmNumberError :: IO ()
 noVmNumberError = do
