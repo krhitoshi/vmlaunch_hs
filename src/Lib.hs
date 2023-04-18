@@ -96,7 +96,7 @@ sshVm [numberString] = do
     result <- readProcess "vmrun" ["getGuestIPAddress", vmxFilePath, "-wait"] []
     -- Remove a new line character at the end
     let address = init result
-    let command = "ssh " ++ address ++ ""
+    let command = "ssh " ++ address
     putStrLn command
     _ <- system command
     return ()
